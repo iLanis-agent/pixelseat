@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelSeat - how far should you sit from a screen?</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background:#1b1722; color:#f0ebf7; line-height:1.5; }
+  .wrap { max-width:660px; margin:0 auto; padding:26px 18px 50px; }
+  h1 { font-size:28px; } h1 span { color:#c79bff; }
+  .sub { color:#b3a9c6; margin:6px 0 18px; }
+  .card { background:#272133; border-radius:14px; padding:16px; margin-bottom:14px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; } label { display:block; font-size:13px; color:#b3a9c6; margin-bottom:4px; }
+  input, select { background:#1b1722; color:#f0ebf7; border:1px solid #4a3f61; border-radius:8px; padding:9px; font-size:16px; }
+  input { width:105px; } select { max-width:100%; }
+  button { background:#352d46; color:#f0ebf7; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; } button.on { background:#c79bff; color:#1b1722; font-weight:700; }
+  .big { font-size:32px; font-weight:800; color:#c79bff; } .muted { color:#b3a9c6; font-size:14px; }
+  .stats { display:flex; gap:22px; flex-wrap:wrap; } .stats div { min-width:120px; } .stats b { display:block; font-size:22px; }
+  .bar { position:relative; height:14px; border-radius:7px; background:linear-gradient(90deg,#a33a3a 0 33%,#a0701c 33% 50%,#5a8f3d 50% 66.6%,#1d6b45 66.6%); margin-top:12px; } .bar i { position:absolute; top:-4px; width:4px; height:22px; background:#fff; border-radius:2px; }
+  .note { font-size:12.5px; color:#8c82a1; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pixel<span>Seat</span></h1>
+  <div class="sub">Pick a screen and how far you sit. See whether you can see the pixels, and the distance where they disappear.</div>
+  <div class="card">
+    <label>Preset</label><select id="pre"></select>
+    <div class="row"><div><label>Width (px)</label><input id="w" type="number" value="3840"></div><div><label>Height (px)</label><input id="h" type="number" value="2160"></div><div><label>Diagonal (in)</label><input id="d" type="number" step="0.1" value="27"></div></div>
+    <div class="row" style="align-items:flex-end"><div><label>Your distance (<span id="u">in</span>)</label><input id="dist" type="number" value="24"></div><div><button id="uIn" class="on">in</button> <button id="uCm">cm</button></div></div>
+  </div>
+  <div class="card"><div class="big" id="verdict">-</div><div class="muted" id="ppdLine"></div><div class="bar"><i id="mark"></i></div><div class="muted" style="display:flex;justify-content:space-between;margin-top:4px"><span>0</span><span>30</span><span>40</span><span>60+ pixels per degree</span></div></div>
+  <div class="card stats"><div><span class="muted">Pixel density</span><b id="ppi">-</b></div><div><span class="muted">Pixels vanish at</span><b id="ret">-</b></div><div><span class="muted">Screen size</span><b id="sz">-</b></div><div><span class="muted">Megapixels</span><b id="mp">-</b></div></div>
+  <div class="note">Rule of thumb: 20/20 vision resolves about 1 arcminute, so 60 pixels per degree is the point where pixels cannot be told apart. Calculated at screen centre, flat screen, ideal contrast; real eyes, text and anti-aliasing vary. Presets use the panel resolution and nominal diagonal.</div>
+</div>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var P = window.Pixel, unit = 'in', $ = function (i) { return document.getElementById(i); };
+  var PRE = [['27" 4K monitor', 3840, 2160, 27, 24], ['27" QHD monitor', 2560, 1440, 27, 24], ['24" 1080p monitor', 1920, 1080, 24, 24], ['32" 4K monitor', 3840, 2160, 32, 28], ['55" 4K TV', 3840, 2160, 55, 100], ['65" 4K TV', 3840, 2160, 65, 110], ['iPhone 15 Pro Max', 2796, 1290, 6.7, 12], ['Galaxy S24 Ultra', 3120, 1440, 6.8, 12], ['MacBook Pro 14"', 3024, 1964, 14.2, 20], ['Custom', 0, 0, 0, 0]];
+  $('pre').innerHTML = PRE.map(function (p, i) { return '<option value="' + i + '">' + p[0] + '</option>'; }).join('');
+  function disp(v) { return unit === 'cm' ? Math.round(v * P.CM_PER_IN) + ' cm' : (Math.round(v * 10) / 10) + ' in'; }
+  function preset() { var p = PRE[+$('pre').value]; if (p[1]) { $('w').value = p[1]; $('h').value = p[2]; $('d').value = p[3]; $('dist').value = unit === 'cm' ? Math.round(p[4] * P.CM_PER_IN) : p[4]; } render(); }
+  function render() {
+    var w = +$('w').value, h = +$('h').value, d = +$('d').value, dist = +$('dist').value;
+    if (!(w > 0 && h > 0 && d > 0 && dist > 0)) { $('verdict').textContent = '-'; $('ppdLine').textContent = 'Enter resolution, diagonal and distance'; ['ppi', 'ret', 'sz', 'mp'].forEach(function (i) { $(i).textContent = '-'; }); return; }
+    var distIn = unit === 'cm' ? dist / P.CM_PER_IN : dist, pp = P.ppi(w, h, d), g = P.ppd(pp, distIn), s = P.size(w, h, d);
+    $('verdict').textContent = P.verdict(g); $('ppdLine').textContent = (Math.round(g * 10) / 10) + ' pixels per degree at ' + disp(distIn);
+    $('ppi').textContent = Math.round(pp) + ' ppi'; $('ret').textContent = disp(P.retinaDistance(pp)); $('sz').textContent = disp(s.width) + ' x ' + disp(s.height); $('mp').textContent = (Math.round(P.megapixels(w, h) * 10) / 10) + ' MP';
+    $('mark').style.left = 'calc(' + Math.min(100, g / 90 * 100) + '% - 2px)';
+  }
+  function setUnit(u) { if (u === unit) return; var v = +$('dist').value; if (v > 0) $('dist').value = u === 'cm' ? Math.round(v * P.CM_PER_IN) : Math.round(v / P.CM_PER_IN * 10) / 10; unit = u; $('u').textContent = u; $('uIn').className = u === 'in' ? 'on' : ''; $('uCm').className = u === 'cm' ? 'on' : ''; render(); }
+  $('pre').onchange = preset; $('uIn').onclick = function () { setUnit('in'); }; $('uCm').onclick = function () { setUnit('cm'); };
+  ['w', 'h', 'd', 'dist'].forEach(function (i) { $(i).oninput = function () { if (i !== 'dist') $('pre').value = PRE.length - 1; render(); }; });
+  render();
+})();
+</script>
+</body>
+</html>
