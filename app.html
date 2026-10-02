@@ -17,7 +17,7 @@
   button { background:#352d46; color:#f0ebf7; border:0; padding:8px 14px; border-radius:8px; cursor:pointer; font-size:14px; } button.on { background:#c79bff; color:#1b1722; font-weight:700; }
   .big { font-size:32px; font-weight:800; color:#c79bff; } .muted { color:#b3a9c6; font-size:14px; }
   .stats { display:flex; gap:22px; flex-wrap:wrap; } .stats div { min-width:120px; } .stats b { display:block; font-size:22px; }
-  .bar { position:relative; height:14px; border-radius:7px; background:linear-gradient(90deg,#a33a3a 0 33%,#a0701c 33% 50%,#5a8f3d 50% 66.6%,#1d6b45 66.6%); margin-top:12px; } .bar i { position:absolute; top:-4px; width:4px; height:22px; background:#fff; border-radius:2px; }
+  .bar { position:relative; height:14px; border-radius:7px; background:linear-gradient(90deg,#a33a3a 0 33.3%,#a0701c 33.3% 44.4%,#5a8f3d 44.4% 66.7%,#1d6b45 66.7%); margin-top:12px; } .bar i { position:absolute; top:-4px; width:4px; height:22px; background:#fff; border-radius:2px; }
   .note { font-size:12.5px; color:#8c82a1; }
 </style>
 </head>
@@ -30,7 +30,7 @@
     <div class="row"><div><label>Width (px)</label><input id="w" type="number" value="3840"></div><div><label>Height (px)</label><input id="h" type="number" value="2160"></div><div><label>Diagonal (in)</label><input id="d" type="number" step="0.1" value="27"></div></div>
     <div class="row" style="align-items:flex-end"><div><label>Your distance (<span id="u">in</span>)</label><input id="dist" type="number" value="24"></div><div><button id="uIn" class="on">in</button> <button id="uCm">cm</button></div></div>
   </div>
-  <div class="card"><div class="big" id="verdict">-</div><div class="muted" id="ppdLine"></div><div class="bar"><i id="mark"></i></div><div class="muted" style="display:flex;justify-content:space-between;margin-top:4px"><span>0</span><span>30</span><span>40</span><span>60+ pixels per degree</span></div></div>
+  <div class="card"><div class="big" id="verdict">-</div><div class="muted" id="ppdLine"></div><div class="bar"><i id="mark"></i></div><div class="muted" style="position:relative;height:20px;margin-top:4px"><span style="position:absolute;left:0">0</span><span style="position:absolute;left:33.3%;transform:translateX(-50%)">30</span><span style="position:absolute;left:44.4%;transform:translateX(-50%)">40</span><span style="position:absolute;left:66.7%;transform:translateX(-50%)">60</span><span style="position:absolute;right:0">90 pixels per degree</span></div></div>
   <div class="card stats"><div><span class="muted">Pixel density</span><b id="ppi">-</b></div><div><span class="muted">Pixels vanish at</span><b id="ret">-</b></div><div><span class="muted">Screen size</span><b id="sz">-</b></div><div><span class="muted">Megapixels</span><b id="mp">-</b></div></div>
   <div class="note">Rule of thumb: 20/20 vision resolves about 1 arcminute, so 60 pixels per degree is the point where pixels cannot be told apart. Calculated at screen centre, flat screen, ideal contrast; real eyes, text and anti-aliasing vary. Presets use the panel resolution and nominal diagonal.</div>
 </div>
